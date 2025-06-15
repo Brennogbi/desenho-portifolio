@@ -18,7 +18,7 @@ async function carregarImagens() {
   const busca = buscaInput.value;
   const categoria = filtroCategoria.value;
 
-  const url = new URL('http://localhost:3000/api/imagens');
+  const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
   url.searchParams.append('pagina', paginaAtual);
   url.searchParams.append('limite', limite);
   if (busca) url.searchParams.append('busca', busca);
@@ -49,7 +49,7 @@ formEnvio.addEventListener('submit', async (e) => {
 
   const formData = new FormData(formEnvio);
 
-  const res = await fetch('http://localhost:3000/api/imagens/upload', {
+  const res = await fetch('https://desenho-portifolio.onrender.com/api/imagens/upload', {
     method: 'POST',
     body: formData
   });
