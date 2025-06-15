@@ -1,5 +1,3 @@
-// frontend/script.js
-
 const galeria = document.getElementById('galeria');
 const paginacao = document.getElementById('paginacao');
 const formEnvio = document.getElementById('form-envio');
@@ -128,4 +126,3 @@ formContainer.style.display = 'none';
 botaoMostrarForm.addEventListener('click', () => {
   formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
 });
-
