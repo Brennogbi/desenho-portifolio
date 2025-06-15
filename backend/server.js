@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -19,8 +18,9 @@ app.use('/api/imagens', imagemRoutes);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB conectado');
-    app.listen(process.env.PORT || 3000, () => {
-      console.log(`🚀 Servidor rodando na porta ${process.env.PORT}`);
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor rodando na porta ${PORT}`);
     });
   })
   .catch(err => {
