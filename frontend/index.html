@@ -1,0 +1,70 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfólio Artístico</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Portfólio do Artista</h1>
+    <nav>
+      <input type="text" id="busca" placeholder="Buscar..." />
+      <select id="filtro-categoria">
+        <option value="">Todas</option>
+        <option value="realismo">Realismo</option>
+        <option value="digital">Digital</option>
+        <option value="animes">Animes</option>
+      </select>
+    </nav>
+  </header>
+
+  <main>
+    <section class="sobre">
+      <img src="perfil.jpg" alt="Artista" class="foto-perfil" />
+      <div>
+        <h2>Sobre o Artista</h2>
+        <p>Artista visual apaixonado por expressões realistas, digitais e cultura anime.</p>
+      </div>
+    </section>
+
+    <section id="galeria" class="galeria"></section>
+    <div id="paginacao" class="paginacao"></div>
+
+    <section class="formulario-envio">
+      <h2>Enviar nova arte</h2>
+      <form id="form-envio">
+        <input type="text" name="titulo" placeholder="Título" required />
+        <input type="text" name="descricao" placeholder="Descrição" required />
+        <select name="categoria" required>
+          <option value="">Categoria</option>
+          <option value="realismo">Realismo</option>
+          <option value="digital">Digital</option>
+          <option value="animes">Animes</option>
+        </select>
+        <input type="file" name="imagem" required />
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>Siga nas redes sociais:</p>
+    <div class="redes">
+      <a href="#">Instagram</a>
+      <a href="#">Behance</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <span id="fechar-modal">&times;</span>
+    <img id="imagem-modal" src="" alt="Ampliada" />
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
