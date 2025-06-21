@@ -12,7 +12,9 @@ app.use(express.json());
 
 // Rotas
 const imagemRoutes = require('./routes/imagens');
+const configRoutes = require('./routes/config');
 app.use('/api/imagens', imagemRoutes);
+app.use('/api/config', configRoutes);
 
 // Conexão com MongoDB
 mongoose.connect(process.env.MONGO_URI)

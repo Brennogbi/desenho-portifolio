@@ -9,31 +9,42 @@
 </head>
 <body>
   <header>
-    <h1>Portfólio do Artista</h1>
+    <h1 id="titulo-site">Bem vindo ao meu PORTFÓLIO!</h1>
+    <div class="menu-toggle">☰</div>
     <nav>
-      <input type="text" id="busca" placeholder="Buscar..." />
-      <select id="filtro-categoria">
-        <option value="">Todas</option>
-        <option value="realismo">Realismo</option>
-        <option value="digital">Digital</option>
-        <option value="animes">Animes</option>
-      </select>
+      <button class="nav-btn" data-categoria="">Todos</button>
+      <button class="nav-btn" data-categoria="realismo">Realismo</button>
+      <button class="nav-btn" data-categoria="animes">Anime</button>
+      <button class="nav-btn" data-categoria="digital">Digital</button>
+      <div class="config-menu">
+        <button class="nav-btn" id="config-btn">Configurações</button>
+        <div id="config-panel" class="config-panel">
+          <h3>Configurações</h3>
+          <button id="edit-titulo">Editar Título</button>
+          <button id="edit-foto">Trocar Foto do Artista</button>
+          <button id="edit-descricao">Editar Descrição</button>
+          <button id="edit-redes">Editar Redes Sociais</button>
+          <button id="edit-cores">Trocar Cores</button>
+          <button id="gerenciar-imagens">Gerenciar Imagens</button>
+          <button id="adicionar-arte">Adicionar Arte</button>
+        </div>
+      </div>
     </nav>
   </header>
 
   <main>
     <section class="sobre">
-      <!-- <img src="perfil.jpg" alt="Artista" class="foto-perfil" /> -->
-      <div>
-        <h2>Sobre o Artista</h2>
-        <p>Artista visual apaixonado por expressões realistas, digitais e cultura anime.</p>
+      <img id="foto-perfil" src="img/logo.jpg" alt="Artista" class="foto-perfil" />
+      <div class="sobre-texto">
+        <h2>Artista</h2>
+        <p id="descricao-artista">Sou Breno, artista visual apaixonado por retratos, paisagens e arte digital.</p>
       </div>
     </section>
 
     <section id="galeria" class="galeria"></section>
     <div id="paginacao" class="paginacao"></div>
 
-    <section class="formulario-envio">
+    <section class="formulario-envio" id="form-envio-container" style="display: none;">
       <h2>Enviar nova arte</h2>
       <form id="form-envio">
         <input type="text" name="titulo" placeholder="Título" required />
@@ -48,22 +59,22 @@
         <button type="submit">Enviar</button>
       </form>
     </section>
+
+    <!-- Painel de Configurações -->
+    <div id="config-modal" class="modal">
+      <span id="fechar-config-modal">×</span>
+      <div id="config-content" class="config-content"></div>
+    </div>
   </main>
 
   <footer>
-    <p>Siga nas redes sociais:</p>
-    <div class="redes">
-      <a href="#">Instagram</a>
-      <a href="#">Behance</a>
-      <a href="#">LinkedIn</a>
+    <p>© 2025 Breno Santos</p>
+    <div class="redes" id="redes-sociais">
+      <a href="#" aria-label="Instagram"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram" /></a>
+      <a href="#" aria-label="YouTube"><img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="YouTube" /></a>
+      <a href="#" aria-label="WhatsApp"><img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp" /></a>
     </div>
   </footer>
-
-  <!-- Modal -->
-  <div id="modal" class="modal">
-    <span id="fechar-modal">×</span>
-    <img id="imagem-modal" src="" alt="Ampliada" />
-  </div>
 
   <script src="script.js"></script>
 </body>

@@ -1,4 +1,3 @@
-// backend/controllers/imagemController.js
 const Imagem = require('../models/Imagem');
 
 exports.salvarImagem = async (req, res) => {
@@ -39,5 +38,34 @@ exports.listarImagens = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ erro: 'Erro ao listar imagens' });
+  }
+};
+
+exports.editarImagem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { titulo, descricao, categoria } = req.body;
+    const url = req.file ? req.file.path : req.body.url; // Mantém URL existente se não houver novo arquivo
+
+    const imagemAtualizada = await Imagem.findByIdAndUpdate(
+      id,
+      { titulo, descricao, categoria, url },
+      { new: true }
+    );
+    if (!imagemAtualizada) return res.status(404).json({ erro: 'Imagem não encontrada' });
+    res.json(imagemAtualizada);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao editar imagem' });
+  }
+};
+
+exports.deletarImagem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const imagem = await Imagem.findByIdAndDelete(id);
+    if (!imagem) return res.status(404).json({ erro: 'Imagem não encontrada' });
+    res.status(200).json({ mensagem: 'Imagem deletada com sucesso' });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao deletar imagem' });
   }
 };
