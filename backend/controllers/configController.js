@@ -41,7 +41,7 @@ exports.updateConfig = async (req, res) => {
     }
     if (cores) {
       try {
-        updateData.cores = typeof colors === 'string' ? JSON.parse(cores) : cores; // Correção: 'colors' para 'cores'
+        updateData.cores = typeof cores === 'string' ? JSON.parse(cores) : cores;
       } catch (e) {
         throw new Error('Dados de cores inválidos');
       }

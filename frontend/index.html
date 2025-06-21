@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfólio Artístico</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
@@ -14,66 +13,66 @@
     <nav>
       <button class="nav-btn" data-categoria="">Todos</button>
       <button class="nav-btn" data-categoria="realismo">Realismo</button>
-      <button class="nav-btn" data-categoria="animes">Anime</button>
       <button class="nav-btn" data-categoria="digital">Digital</button>
-      <div class="config-menu">
-        <button class="nav-btn" id="config-btn">Configurações</button>
-        <div id="config-panel" class="config-panel">
-          <h3>Configurações</h3>
-          <button id="edit-titulo">Editar Título</button>
-          <button id="edit-foto">Trocar Foto do Artista</button>
-          <button id="edit-descricao">Editar Descrição</button>
-          <button id="edit-redes">Editar Redes Sociais</button>
-          <button id="edit-cores">Trocar Cores</button>
-          <button id="gerenciar-imagens">Gerenciar Imagens</button>
-          <button id="adicionar-arte">Adicionar Arte</button>
-        </div>
-      </div>
+      <button class="nav-btn" data-categoria="animes">Animes</button>
     </nav>
+    <div class="config-menu">
+      <button id="config-btn">⚙️ Configurações</button>
+      <div class="config-panel">
+        <button id="edit-titulo">Editar Título</button>
+        <button id="edit-foto">Trocar Foto do Artista</button>
+        <button id="edit-descricao">Editar Descrição</button>
+        <button id="edit-redes">Editar Redes Sociais</button>
+        <button id="edit-cores">Trocar Cores</button>
+        <button id="gerenciar-imagens">Gerenciar Imagens</button>
+        <button id="adicionar-arte">Adicionar Arte</button>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <section class="sobre">
-      <img id="foto-perfil" src="img/logo.jpg" alt="Artista" class="foto-perfil" />
-      <div class="sobre-texto">
-        <h2>Artista</h2>
-        <p id="descricao-artista">Sou Breno, artista visual apaixonado por retratos, paisagens e arte digital.</p>
+  <section class="sobre">
+    <img id="foto-perfil" src="img/logo.jpg" alt="Foto do Artista" class="foto-perfil">
+    <div class="sobre-texto">
+      <h2 id="titulo-site-mobile">Bem vindo ao meu PORTFÓLIO!</h2>
+      <p id="descricao-artista">Sou Breno, artista visual apaixonado por retratos, paisagens e arte digital.</p>
+      <div id="redes-sociais" class="redes">
+        <a href="#" aria-label="Instagram"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram" /></a>
+        <a href="#" aria-label="YouTube"><img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="YouTube" /></a>
+        <a href="#" aria-label="WhatsApp"><img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp" /></a>
       </div>
-    </section>
-
-    <section id="galeria" class="galeria"></section>
-    <div id="paginacao" class="paginacao"></div>
-
-    <section class="formulario-envio" id="form-envio-container" style="display: none;">
-      <h2>Enviar nova arte</h2>
-      <form id="form-envio">
-        <input type="text" name="titulo" placeholder="Título" required />
-        <input type="text" name="descricao" placeholder="Descrição" required />
-        <select name="categoria" required>
-          <option value="">Categoria</option>
-          <option value="realismo">Realismo</option>
-          <option value="digital">Digital</option>
-          <option value="animes">Animes</option>
-        </select>
-        <input type="file" name="imagem" required />
-        <button type="submit">Enviar</button>
-      </form>
-    </section>
-
-    <!-- Painel de Configurações -->
-    <div id="config-modal" class="modal">
-      <span id="fechar-config-modal">×</span>
-      <div id="config-content" class="config-content"></div>
     </div>
-  </main>
+  </section>
+
+  <section class="galeria" id="galeria"></section>
+  <div class="paginacao" id="paginacao"></div>
+
+  <div id="form-envio-container" class="formulario-envio">
+    <form id="form-envio">
+      <input type="text" name="titulo" placeholder="Título da Imagem" required>
+      <input type="text" name="descricao" placeholder="Descrição" required>
+      <select name="categoria" required>
+        <option value="realismo">Realismo</option>
+        <option value="digital">Digital</option>
+        <option value="animes">Animes</option>
+      </select>
+      <input type="file" name="imagem" accept="image/*" required>
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <div id="config-modal" class="modal">
+    <div id="config-content"></div>
+    <span id="fechar-config-modal">×</span>
+  </div>
+
+  <div id="modal" class="modal">
+    <img id="imagemModal">
+    <span id="fechar-modal">×</span>
+  </div>
 
   <footer>
-    <p>© 2025 Breno Santos</p>
-    <div class="redes" id="redes-sociais">
-      <a href="#" aria-label="Instagram"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram" /></a>
-      <a href="#" aria-label="YouTube"><img src="https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png" alt="YouTube" /></a>
-      <a href="#" aria-label="WhatsApp"><img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp" /></a>
-    </div>
+    <p>&copy; 2025 Breno - Todos os direitos reservados</p>
+    <div class="redes" id="redes-sociais-footer"></div>
   </footer>
 
   <script src="script.js"></script>

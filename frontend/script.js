@@ -14,7 +14,7 @@ const configModal = document.getElementById('config-modal');
 const fecharConfigModal = document.getElementById('fechar-config-modal');
 const configContent = document.getElementById('config-content');
 const formEnvioContainer = document.getElementById('form-envio-container');
-const modal = document.createElement('div'); // Cria um modal separado para imagens
+const modal = document.createElement('div');
 modal.id = 'modal';
 modal.className = 'modal';
 document.body.appendChild(modal);
