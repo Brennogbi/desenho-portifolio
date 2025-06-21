@@ -9,7 +9,6 @@ const fotoPerfil = document.getElementById('foto-perfil');
 const descricaoArtista = document.getElementById('descricao-artista');
 const redesSociais = document.getElementById('redes-sociais');
 const configBtn = document.getElementById('config-btn');
-const configPanel = document.getElementById('config-panel');
 const configModal = document.getElementById('config-modal');
 const fecharConfigModal = document.getElementById('fechar-config-modal');
 const configContent = document.getElementById('config-content');
@@ -63,6 +62,7 @@ function applyColors() {
     btn.style.color = currentColors.text;
   });
   fotoPerfil.style.borderColor = currentColors.accent;
+  tituloSite.style.color = currentColors.text;
 }
 
 async function carregarImagens(categoria = '') {
@@ -82,15 +82,9 @@ async function carregarImagens(categoria = '') {
       <img src="${imagem.url}" alt="${imagem.titulo}" />
       <h3>${imagem.titulo}</h3>
       <p>${imagem.descricao}</p>
-      <button class="edit-btn" data-id="${imagem._id}">Editar</button>
-      <button class="delete-btn" data-id="${imagem._id}">Deletar</button>
     `;
-    div.querySelector('.edit-btn').addEventListener('click', () => editarImagem(imagem._id));
-    div.querySelector('.delete-btn').addEventListener('click', () => deletarImagem(imagem._id));
     div.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('edit-btn') && !e.target.classList.contains('delete-btn')) {
-        abrirModal(imagem.url);
-      }
+      abrirModal(imagem.url);
     });
     galeria.appendChild(div);
   });
@@ -174,67 +168,78 @@ botaoMostrarForm.addEventListener('click', () => {
 
 // Configurações
 configBtn.addEventListener('click', () => {
-  configPanel.style.display = configPanel.style.display === 'none' ? 'block' : 'none';
-});
-
-document.getElementById('edit-titulo').addEventListener('click', () => {
   configContent.innerHTML = `
-    <h3>Editar Título</h3>
-    <input type="text" id="novo-titulo" value="${tituloSite.textContent}" />
-    <button onclick="salvarTitulo()">Salvar</button>
+    <h3>Configurações</h3>
+    <button id="edit-titulo">Editar Título e Cor</button>
+    <button id="edit-foto">Trocar Foto do Artista</button>
+    <button id="edit-descricao">Editar Descrição</button>
+    <button id="edit-redes">Editar Redes Sociais</button>
+    <button id="edit-cores">Trocar Cores</button>
+    <button id="gerenciar-imagens">Gerenciar Imagens</button>
+    <button id="adicionar-arte">Adicionar Arte</button>
   `;
   configModal.classList.add('ativo');
-});
 
-document.getElementById('edit-foto').addEventListener('click', () => {
-  configContent.innerHTML = `
-    <h3>Trocar Foto do Artista</h3>
-    <input type="file" id="nova-foto" />
-    <button onclick="salvarFoto()">Salvar</button>
-  `;
-  configModal.classList.add('ativo');
-});
+  document.getElementById('edit-titulo').addEventListener('click', () => {
+    configContent.innerHTML = `
+      <h3>Editar Título e Cor</h3>
+      <input type="text" id="novo-titulo" value="${tituloSite.textContent}" />
+      <input type="color" id="titulo-color" value="${currentColors.text}" />
+      <button onclick="salvarTitulo()">Salvar</button>
+    `;
+    configModal.classList.add('ativo');
+  });
 
-document.getElementById('edit-descricao').addEventListener('click', () => {
-  configContent.innerHTML = `
-    <h3>Editar Descrição</h3>
-    <textarea id="nova-descricao">${descricaoArtista.textContent}</textarea>
-    <button onclick="salvarDescricao()">Salvar</button>
-  `;
-  configModal.classList.add('ativo');
-});
+  document.getElementById('edit-foto').addEventListener('click', () => {
+    configContent.innerHTML = `
+      <h3>Trocar Foto do Artista</h3>
+      <input type="file" id="nova-foto" />
+      <button onclick="salvarFoto()">Salvar</button>
+    `;
+    configModal.classList.add('ativo');
+  });
 
-document.getElementById('edit-redes').addEventListener('click', () => {
-  configContent.innerHTML = `
-    <h3>Editar Redes Sociais</h3>
-    <input type="text" id="insta-link" placeholder="Link Instagram" value="${redesSociais.querySelector('a[aria-label="Instagram"]')?.href || ''}" />
-    <input type="text" id="youtube-link" placeholder="Link YouTube" value="${redesSociais.querySelector('a[aria-label="YouTube"]')?.href || ''}" />
-    <input type="text" id="whatsapp-link" placeholder="Link WhatsApp" value="${redesSociais.querySelector('a[aria-label="WhatsApp"]')?.href || ''}" />
-    <button onclick="salvarRedes()">Salvar</button>
-  `;
-  configModal.classList.add('ativo');
-});
+  document.getElementById('edit-descricao').addEventListener('click', () => {
+    configContent.innerHTML = `
+      <h3>Editar Descrição</h3>
+      <textarea id="nova-descricao">${descricaoArtista.textContent}</textarea>
+      <button onclick="salvarDescricao()">Salvar</button>
+    `;
+    configModal.classList.add('ativo');
+  });
 
-document.getElementById('edit-cores').addEventListener('click', () => {
-  configContent.innerHTML = `
-    <h3>Trocar Cores</h3>
-    <input type="color" id="bg-color" value="${currentColors.background}" />
-    <input type="color" id="text-color" value="${currentColors.text}" />
-    <input type="color" id="accent-color" value="${currentColors.accent}" />
-    <button onclick="salvarCores()">Salvar</button>
-  `;
-  configModal.classList.add('ativo');
-});
+  document.getElementById('edit-redes').addEventListener('click', () => {
+    configContent.innerHTML = `
+      <h3>Editar Redes Sociais</h3>
+      <input type="text" id="insta-link" placeholder="Link Instagram" value="${redesSociais.querySelector('a[aria-label="Instagram"]')?.href || ''}" />
+      <input type="text" id="youtube-link" placeholder="Link YouTube" value="${redesSociais.querySelector('a[aria-label="YouTube"]')?.href || ''}" />
+      <input type="text" id="whatsapp-link" placeholder="Link WhatsApp" value="${redesSociais.querySelector('a[aria-label="WhatsApp"]')?.href || ''}" />
+      <button onclick="salvarRedes()">Salvar</button>
+    `;
+    configModal.classList.add('ativo');
+  });
 
-document.getElementById('gerenciar-imagens').addEventListener('click', () => {
-  configContent.innerHTML = `<h3>Gerenciar Imagens</h3><div id="imagens-list"></div>`;
-  carregarImagensParaGerenciar();
-  configModal.classList.add('ativo');
-});
+  document.getElementById('edit-cores').addEventListener('click', () => {
+    configContent.innerHTML = `
+      <h3>Trocar Cores</h3>
+      <label>Cor de Fundo: <input type="color" id="bg-color" value="${currentColors.background}" /></label><br>
+      <label>Cor do Texto: <input type="color" id="text-color" value="${currentColors.text}" /></label><br>
+      <label>Cor de Destaque: <input type="color" id="accent-color" value="${currentColors.accent}" /></label><br>
+      <button onclick="salvarCores()">Salvar</button>
+    `;
+    configModal.classList.add('ativo');
+  });
 
-document.getElementById('adicionar-arte').addEventListener('click', () => {
-  formEnvioContainer.style.display = 'block';
-  configModal.classList.remove('ativo');
+  document.getElementById('gerenciar-imagens').addEventListener('click', () => {
+    configContent.innerHTML = `<h3>Gerenciar Imagens</h3><div id="imagens-list"></div>`;
+    carregarImagensParaGerenciar();
+    configModal.classList.add('ativo');
+  });
+
+  document.getElementById('adicionar-arte').addEventListener('click', () => {
+    formEnvioContainer.style.display = 'block';
+    configModal.classList.remove('ativo');
+  });
 });
 
 fecharConfigModal.addEventListener('click', () => {
@@ -246,15 +251,18 @@ configModal.addEventListener('click', (e) => {
 
 async function salvarTitulo() {
   const novoTitulo = document.getElementById('novo-titulo').value;
+  const tituloColor = document.getElementById('titulo-color').value;
   const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tituloSite: novoTitulo })
+    body: JSON.stringify({ tituloSite: novoTitulo, cores: { ...currentColors, text: tituloColor } })
   });
   if (res.ok) {
     const config = await res.json();
     tituloSite.textContent = config.tituloSite;
-    alert('Título salvo com sucesso!');
+    currentColors.text = config.cores.text;
+    applyColors();
+    alert('Título e cor salvos com sucesso!');
   } else {
     alert('Erro ao salvar título: ' + (await res.text()));
   }
@@ -353,7 +361,7 @@ async function carregarImagensParaGerenciar() {
       <img src="${imagem.url}" alt="${imagem.titulo}" style="max-width: 100px;" />
       <p>${imagem.titulo}</p>
       <button onclick="editarImagem('${imagem._id}')">Editar</button>
-      <button onclick="deletarImagem('${imagem._id}')">Deletar</button>
+      <button onclick="deletarImagem('${imagem._id}')">Remover</button>
     `;
     imagensList.appendChild(div);
   });
