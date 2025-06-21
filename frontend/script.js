@@ -14,6 +14,10 @@ const configModal = document.getElementById('config-modal');
 const fecharConfigModal = document.getElementById('fechar-config-modal');
 const configContent = document.getElementById('config-content');
 const formEnvioContainer = document.getElementById('form-envio-container');
+const modal = document.getElementById('config-modal'); // Ajuste para o modal correto
+const imagemModal = document.createElement('img'); // Criado dinamicamente
+modal.appendChild(imagemModal); // Adiciona ao modal
+const fecharModal = document.getElementById('fechar-config-modal'); // Reutiliza o botão de fechar
 
 let paginaAtual = 1;
 const limite = 6;
@@ -254,26 +258,17 @@ async function salvarFoto() {
   const novaFoto = document.getElementById('nova-foto').files[0];
   if (novaFoto) {
     const formData = new FormData();
-    formData.append('fotoPerfil', novaFoto);
-    if (tituloSite.textContent) formData.append('tituloSite', tituloSite.textContent);
-    if (descricaoArtista.textContent) formData.append('descricaoArtista', descricaoArtista.textContent);
-    if (redesSociais.innerHTML) formData.append('redesSociais', JSON.stringify({
-      instagram: redesSociais.querySelector('a[aria-label="Instagram"]')?.href || '',
-      youtube: redesSociais.querySelector('a[aria-label="YouTube"]')?.href || '',
-      whatsapp: redesSociais.querySelector('a[aria-label="WhatsApp"]')?.href || ''
-    }));
-    if (Object.keys(currentColors).length) formData.append('cores', JSON.stringify(currentColors));
-
+    formData.append('fotoPerfil', novaFoto); // Apenas a foto, outros campos só se alterados
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
       body: formData
     });
     if (res.ok) {
       const config = await res.json();
-      fotoPerfil.src = config.fotoPerfil; // Atualiza com a URL do Cloudinary
+      fotoPerfil.src = config.fotoPerfil;
       alert('Foto salva com sucesso!');
     } else {
-      alert('Erro ao salvar foto.');
+      alert('Erro ao salvar foto: ' + (await res.text()));
     }
   }
   configModal.classList.remove('ativo');
