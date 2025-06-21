@@ -14,10 +14,17 @@ const configModal = document.getElementById('config-modal');
 const fecharConfigModal = document.getElementById('fechar-config-modal');
 const configContent = document.getElementById('config-content');
 const formEnvioContainer = document.getElementById('form-envio-container');
-const modal = document.getElementById('config-modal'); // Ajuste para o modal correto
-const imagemModal = document.createElement('img'); // Criado dinamicamente
-modal.appendChild(imagemModal); // Adiciona ao modal
-const fecharModal = document.getElementById('fechar-config-modal'); // Reutiliza o botão de fechar
+const modal = document.createElement('div'); // Cria um modal separado para imagens
+modal.id = 'modal';
+modal.className = 'modal';
+document.body.appendChild(modal);
+const imagemModal = document.createElement('img');
+imagemModal.id = 'imagemModal';
+modal.appendChild(imagemModal);
+const fecharModal = document.createElement('span');
+fecharModal.id = 'fechar-modal';
+fecharModal.textContent = '×';
+modal.appendChild(fecharModal);
 
 let paginaAtual = 1;
 const limite = 6;
@@ -107,7 +114,7 @@ formEnvio.addEventListener('submit', async (e) => {
     formEnvioContainer.style.display = 'none';
     carregarImagens();
   } else {
-    alert('Erro ao enviar imagem.');
+    alert('Erro ao enviar imagem: ' + (await res.text()));
   }
 });
 
@@ -249,7 +256,7 @@ async function salvarTitulo() {
     tituloSite.textContent = config.tituloSite;
     alert('Título salvo com sucesso!');
   } else {
-    alert('Erro ao salvar título.');
+    alert('Erro ao salvar título: ' + (await res.text()));
   }
   configModal.classList.remove('ativo');
 }
@@ -258,7 +265,7 @@ async function salvarFoto() {
   const novaFoto = document.getElementById('nova-foto').files[0];
   if (novaFoto) {
     const formData = new FormData();
-    formData.append('fotoPerfil', novaFoto); // Apenas a foto, outros campos só se alterados
+    formData.append('fotoPerfil', novaFoto);
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
       body: formData
@@ -270,6 +277,8 @@ async function salvarFoto() {
     } else {
       alert('Erro ao salvar foto: ' + (await res.text()));
     }
+  } else {
+    alert('Por favor, selecione uma foto.');
   }
   configModal.classList.remove('ativo');
 }
@@ -286,7 +295,7 @@ async function salvarDescricao() {
     descricaoArtista.textContent = config.descricaoArtista;
     alert('Descrição salva com sucesso!');
   } else {
-    alert('Erro ao salvar descrição.');
+    alert('Erro ao salvar descrição: ' + (await res.text()));
   }
   configModal.classList.remove('ativo');
 }
@@ -311,7 +320,7 @@ async function salvarRedes() {
     `;
     alert('Redes sociais salvas com sucesso!');
   } else {
-    alert('Erro ao salvar redes sociais.');
+    alert('Erro ao salvar redes sociais: ' + (await res.text()));
   }
   configModal.classList.remove('ativo');
 }
@@ -327,7 +336,7 @@ function salvarCores() {
     body: JSON.stringify({ cores: currentColors })
   }).then(res => {
     if (res.ok) alert('Cores salvas com sucesso!');
-    else alert('Erro ao salvar cores.');
+    else alert('Erro ao salvar cores: ' + res.statusText);
   }).catch(err => console.error('Erro:', err));
   configModal.classList.remove('ativo');
 }
@@ -379,7 +388,7 @@ async function deletarImagem(id) {
       carregarImagens();
       carregarImagensParaGerenciar();
     } else {
-      alert('Erro ao deletar imagem.');
+      alert('Erro ao deletar imagem: ' + (await res.text()));
     }
   }
 }
@@ -402,7 +411,7 @@ async function salvarEdicao(id) {
     carregarImagens();
     carregarImagensParaGerenciar();
   } else {
-    alert('Erro ao atualizar imagem.');
+    alert('Erro ao atualizar imagem: ' + (await res.text()));
   }
 }
 
