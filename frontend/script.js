@@ -81,10 +81,9 @@ async function carregarImagens(categoria = '') {
     div.innerHTML = `
       <img src="${imagem.url}" alt="${imagem.titulo}" />
       <h3>${imagem.titulo}</h3>
-      <p>${imagem.descricao}</p>
     `;
     div.addEventListener('click', (e) => {
-      abrirModal(imagem.url);
+      abrirModal(imagem.url, imagem.descricao);
     });
     galeria.appendChild(div);
   });
@@ -143,15 +142,30 @@ menuToggle.addEventListener('click', () => {
   nav.classList.toggle('ativo');
 });
 
-function abrirModal(src) {
-  imagemModal.src = src;
+function abrirModal(src, descricao) {
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <img src="${src}" alt="Imagem" />
+    <p>${descricao || 'Sem descrição'}</p>
+  `;
+  imagemModal.parentNode.replaceChild(modalContent, imagemModal);
   modal.classList.add('ativo');
 }
 fecharModal.addEventListener('click', () => {
   modal.classList.remove('ativo');
+  const newImagemModal = document.createElement('img');
+  newImagemModal.id = 'imagemModal';
+  modal.replaceChild(newImagemModal, modal.firstChild);
+  imagemModal = newImagemModal;
 });
 modal.addEventListener('click', (e) => {
-  if (e.target === modal) modal.classList.remove('ativo');
+  if (e.target === modal) {
+    modal.classList.remove('ativo');
+    const newImagemModal = document.createElement('img');
+    newImagemModal.id = 'imagemModal';
+    modal.replaceChild(newImagemModal, modal.firstChild);
+    imagemModal = newImagemModal;
+  }
 });
 
 const formContainer = document.getElementById('form-envio-container');
@@ -160,10 +174,10 @@ botaoMostrarForm.textContent = 'Adicionar Arte';
 botaoMostrarForm.classList.add('botao-envio-discreto');
 
 formContainer.parentNode.insertBefore(botaoMostrarForm, formContainer);
-formContainer.style.display = 'none';
+formEnvioContainer.style.display = 'none';
 
 botaoMostrarForm.addEventListener('click', () => {
-  formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+  formEnvioContainer.style.display = formEnvioContainer.style.display === 'none' ? 'block' : 'none';
 });
 
 // Configurações
@@ -360,30 +374,10 @@ async function carregarImagensParaGerenciar() {
     div.innerHTML = `
       <img src="${imagem.url}" alt="${imagem.titulo}" style="max-width: 100px;" />
       <p>${imagem.titulo}</p>
-      <button onclick="editarImagem('${imagem._id}')">Editar</button>
       <button onclick="deletarImagem('${imagem._id}')">Remover</button>
     `;
     imagensList.appendChild(div);
   });
-}
-
-async function editarImagem(id) {
-  const url = `https://desenho-portifolio.onrender.com/api/imagens/${id}`;
-  const res = await fetch(url);
-  const imagem = await res.json();
-  configContent.innerHTML = `
-    <h3>Editar Imagem</h3>
-    <input type="text" id="edit-titulo" value="${imagem.titulo || ''}" />
-    <input type="text" id="edit-descricao" value="${imagem.descricao || ''}" />
-    <select id="edit-categoria">
-      <option value="realismo" ${imagem.categoria === 'realismo' ? 'selected' : ''}>Realismo</option>
-      <option value="digital" ${imagem.categoria === 'digital' ? 'selected' : ''}>Digital</option>
-      <option value="animes" ${imagem.categoria === 'animes' ? 'selected' : ''}>Animes</option>
-    </select>
-    <input type="file" id="edit-imagem" />
-    <button onclick="salvarEdicao('${id}')">Salvar</button>
-  `;
-  configModal.classList.add('ativo');
 }
 
 async function deletarImagem(id) {
@@ -398,28 +392,6 @@ async function deletarImagem(id) {
     } else {
       alert('Erro ao deletar imagem: ' + (await res.text()));
     }
-  }
-}
-
-async function salvarEdicao(id) {
-  const formData = new FormData();
-  formData.append('titulo', document.getElementById('edit-titulo').value);
-  formData.append('descricao', document.getElementById('edit-descricao').value);
-  formData.append('categoria', document.getElementById('edit-categoria').value);
-  const novaImagem = document.getElementById('edit-imagem').files[0];
-  if (novaImagem) formData.append('imagem', novaImagem);
-
-  const res = await fetch(`https://desenho-portifolio.onrender.com/api/imagens/${id}`, {
-    method: 'PUT',
-    body: formData
-  });
-  if (res.ok) {
-    alert('Imagem atualizada com sucesso!');
-    configModal.classList.remove('ativo');
-    carregarImagens();
-    carregarImagensParaGerenciar();
-  } else {
-    alert('Erro ao atualizar imagem: ' + (await res.text()));
   }
 }
 
