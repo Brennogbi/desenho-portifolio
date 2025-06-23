@@ -26,8 +26,15 @@ fecharModal.textContent = '×';
 modal.appendChild(fecharModal);
 
 let paginaAtual = 1;
-const limite = 6;
+const limite = 3;
 let currentColors = { background: '#000', text: '#fff', accent: '#fff' };
+
+// Imagens fixas para exibir inicialmente
+const imagensFixas = [
+  { url: 'https://via.placeholder.com/300x200?text=Imagem+1', titulo: 'Imagem 1' },
+  { url: 'https://via.placeholder.com/300x200?text=Imagem+2', titulo: 'Imagem 2' },
+  { url: 'https://via.placeholder.com/300x200?text=Imagem+3', titulo: 'Imagem 3' }
+];
 
 async function carregarConfiguracoes() {
   try {
@@ -66,16 +73,9 @@ function applyColors() {
 }
 
 async function carregarImagens(categoria = '') {
-  const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
-  url.searchParams.append('pagina', paginaAtual);
-  url.searchParams.append('limite', limite);
-  if (categoria) url.searchParams.append('categoria', categoria);
-
-  const res = await fetch(url);
-  const dados = await res.json();
-
+  // Exibe imagens fixas inicialmente
   galeria.innerHTML = '';
-  dados.imagens.forEach(imagem => {
+  imagensFixas.forEach(imagem => {
     const div = document.createElement('div');
     div.classList.add('item-galeria');
     div.innerHTML = `
@@ -83,12 +83,40 @@ async function carregarImagens(categoria = '') {
       <h3>${imagem.titulo}</h3>
     `;
     div.addEventListener('click', (e) => {
-      abrirModal(imagem.url, imagem.descricao);
+      abrirModal(imagem.url, ''); // Sem descrição fixa, pode ajustar se quiser
     });
     galeria.appendChild(div);
   });
 
-  gerarPaginacao(dados.total);
+  // Carrega imagens da API após exibir as fixas
+  const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
+  url.searchParams.append('pagina', paginaAtual);
+  url.searchParams.append('limite', limite);
+  if (categoria) url.searchParams.append('categoria', categoria);
+
+  try {
+    const res = await fetch(url);
+    const dados = await res.json();
+
+    // Substitui as imagens fixas pelos dados da API
+    galeria.innerHTML = '';
+    dados.imagens.forEach(imagem => {
+      const div = document.createElement('div');
+      div.classList.add('item-galeria');
+      div.innerHTML = `
+        <img src="${imagem.url}" alt="${imagem.titulo}" />
+        <h3>${imagem.titulo}</h3>
+      `;
+      div.addEventListener('click', (e) => {
+        abrirModal(imagem.url, imagem.descricao);
+      });
+      galeria.appendChild(div);
+    });
+
+    gerarPaginacao(dados.total);
+  } catch (error) {
+    console.error('Erro ao carregar imagens:', error);
+  }
 }
 
 formEnvio.addEventListener('submit', async (e) => {
@@ -143,28 +171,32 @@ menuToggle.addEventListener('click', () => {
 });
 
 function abrirModal(src, descricao) {
-  const modalContent = document.createElement('div');
-  modalContent.innerHTML = `
-    <img src="${src}" alt="Imagem" />
-    <p>${descricao || 'Sem descrição'}</p>
-  `;
-  imagemModal.parentNode.replaceChild(modalContent, imagemModal);
+  imagemModal.src = src;
+  // Remove qualquer descrição anterior
+  const descricaoElement = modal.querySelector('p');
+  if (descricaoElement) modal.removeChild(descricaoElement);
+  // Adiciona a descrição abaixo da imagem, se existir
+  if (descricao) {
+    const p = document.createElement('p');
+    p.textContent = descricao || 'Sem descrição';
+    modal.appendChild(p);
+  }
   modal.classList.add('ativo');
 }
+
 fecharModal.addEventListener('click', () => {
   modal.classList.remove('ativo');
-  const newImagemModal = document.createElement('img');
-  newImagemModal.id = 'imagemModal';
-  modal.replaceChild(newImagemModal, modal.firstChild);
-  imagemModal = newImagemModal;
+  const descricaoElement = modal.querySelector('p');
+  if (descricaoElement) modal.removeChild(descricaoElement);
+  imagemModal.src = '';
 });
+
 modal.addEventListener('click', (e) => {
   if (e.target === modal) {
     modal.classList.remove('ativo');
-    const newImagemModal = document.createElement('img');
-    newImagemModal.id = 'imagemModal';
-    modal.replaceChild(newImagemModal, modal.firstChild);
-    imagemModal = newImagemModal;
+    const descricaoElement = modal.querySelector('p');
+    if (descricaoElement) modal.removeChild(descricaoElement);
+    imagemModal.src = '';
   }
 });
 

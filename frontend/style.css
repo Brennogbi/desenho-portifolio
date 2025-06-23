@@ -29,13 +29,26 @@ header {
   align-items: center;
   flex-direction: column;
   transition: background 0.3s, color 0.3s;
- 
 }
 
 header h1 {
   font-size: 1.8rem;
   font-weight: bold;
   text-transform: uppercase;
+  animation: fadeInDown 1s ease-out forwards;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .menu-toggle {
@@ -45,6 +58,11 @@ header h1 {
   position: absolute;
   left: 1rem;
   top: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+  transform: rotate(90deg);
 }
 
 nav {
@@ -52,7 +70,6 @@ nav {
   justify-content: center;
   gap: 1rem;
   margin-top: 0.5rem;
-  
 }
 
 .nav-btn {
@@ -63,11 +80,12 @@ nav {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
 }
 
 .nav-btn:hover {
   background: #333;
+  transform: scale(1.1);
 }
 
 /* Sobre */
@@ -111,7 +129,6 @@ nav {
   }
 }
 
-
 .sobre-texto h2 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
@@ -137,7 +154,6 @@ nav {
 }
 
 /* Galeria */
-/* Galeria */
 .galeria {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Colunas com mesmo tamanho automático */
@@ -154,8 +170,6 @@ nav {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.2s;
   cursor: pointer;
- 
-  
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -164,11 +178,10 @@ nav {
   width: 80%; /* Agora ocupa quase 100% da célula */
 }
 
-
-.item-galeria:hover{
-
+.item-galeria:hover {
   box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.8);
 }
+
 .item-galeria:hover {
   transform: scale(1.02);
 }
@@ -208,7 +221,6 @@ nav {
 .item-galeria button:hover {
   background: #777;
 }
-
 
 /* Paginação */
 .paginacao {
@@ -265,7 +277,7 @@ nav {
 }
 
 /* Modal */
-.modal {
+#modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -278,14 +290,26 @@ nav {
   z-index: 20;
 }
 
-.modal.ativo {
+#modal.ativo {
   display: flex;
+  flex-direction: column; /* Empilha verticalmente */
+  gap: 1rem; /* Espaçamento entre imagem e descrição */
 }
 
-.modal img {
+#imagemModal {
   max-width: 90%;
-  max-height: 90%;
+  max-height: 70vh; /* Limita a altura da imagem */
   border-radius: 8px;
+}
+
+#modal p {
+  max-width: 90%; /* Largura máxima para a descrição */
+  text-align: center;
+  color: #fff;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1); /* Fundo leve para contraste */
+  border-radius: 5px;
+  margin: 0 auto; /* Centraliza a descrição */
 }
 
 #fechar-modal {
@@ -300,10 +324,18 @@ nav {
 /* Config Modal */
 #config-modal {
   z-index: 30;
+  display: none;
 }
 
 #config-modal.ativo {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #config-content {
@@ -382,9 +414,10 @@ footer .redes img {
     position: absolute;
     top: 100%;
     left: 0;
-    width: 100%;
-    background: #000;
+    width: 50%;
+    background: #00000086;
     padding: 1rem;
+    border-radius: 15px;
   }
 
   nav.ativo {
@@ -409,15 +442,13 @@ footer .redes img {
     height: 200px;
   }
 
-  .galeria{
-
-    grid-template-columns: repeat(2, 1fr); /* Colunas com mesmo tamanho automático */
-     gap: 1rem;
+  .galeria {
+    grid-template-columns: repeat(1, 1fr); /* Colunas com mesmo tamanho automático */
+    gap: 1rem;
   }
 
   .item-galeria {
     height: 200px;
-     
   }
 
   .sobre-texto p#descricao-artista {
@@ -427,34 +458,3 @@ footer .redes img {
 }
 
 /* Modal para Imagens */
-#modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 20;
-}
-
-#modal.ativo {
-  display: flex;
-}
-
-#imagemModal {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 8px;
-}
-
-#fechar-modal {
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-  font-size: 2rem;
-  color: white;
-  cursor: pointer;
-}
