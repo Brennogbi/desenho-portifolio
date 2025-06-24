@@ -73,22 +73,22 @@ function applyColors() {
 }
 
 async function carregarImagens(categoria = '') {
-  // Exibe imagens fixas inicialmente
+  // Exibe imagens fixas imediatamente
   galeria.innerHTML = '';
   imagensFixas.forEach(imagem => {
     const div = document.createElement('div');
     div.classList.add('item-galeria');
     div.innerHTML = `
-      <img src="${imagem.url}" alt="${imagem.titulo}" />
+      <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
       <h3>${imagem.titulo}</h3>
     `;
     div.addEventListener('click', (e) => {
-      abrirModal(imagem.url, ''); // Sem descrição fixa, pode ajustar se quiser
+      abrirModal(imagem.url, ''); // Sem descrição fixa
     });
     galeria.appendChild(div);
   });
 
-  // Carrega imagens da API após exibir as fixas
+  // Carrega imagens da API em paralelo
   const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
   url.searchParams.append('pagina', paginaAtual);
   url.searchParams.append('limite', limite);
@@ -98,13 +98,13 @@ async function carregarImagens(categoria = '') {
     const res = await fetch(url);
     const dados = await res.json();
 
-    // Substitui as imagens fixas pelos dados da API
-    galeria.innerHTML = '';
+    // Substitui a galeria com dados da API de uma vez
+    galeria.innerHTML = ''; // Limpa as fixas antes de renderizar
     dados.imagens.forEach(imagem => {
       const div = document.createElement('div');
       div.classList.add('item-galeria');
       div.innerHTML = `
-        <img src="${imagem.url}" alt="${imagem.titulo}" />
+        <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
         <h3>${imagem.titulo}</h3>
       `;
       div.addEventListener('click', (e) => {
