@@ -74,17 +74,21 @@ async function verificarSenha() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ senha })
     });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Erro na autenticação');
+    }
     const data = await res.json();
     if (data.success) {
       autenticado = true;
       document.body.removeChild(document.getElementById('login-modal'));
       configModal.classList.add('ativo');
     } else {
-      alert(data.message || 'Erro ao autenticar');
+      alert(data.message || 'Senha inválida');
     }
   } catch (error) {
-    console.error('Erro na autenticação:', error);
-    alert('Erro ao conectar com o servidor');
+    console.error('Erro na autenticação:', error.message);
+    alert('Erro ao conectar com o servidor: ' + (error.message || 'Verifique se o servidor está ativo'));
   }
 }
 
@@ -98,6 +102,7 @@ const imagensFixas = [
 async function carregarConfiguracoes() {
   try {
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config');
+    if (!res.ok) throw new Error('Falha ao carregar configurações');
     const config = await res.json();
     tituloSite.textContent = config.tituloSite;
     fotoPerfil.src = config.fotoPerfil;
@@ -132,7 +137,6 @@ function applyColors() {
 }
 
 async function carregarImagens(categoria = '') {
-  // Exibe imagens fixas imediatamente
   galeria.innerHTML = '';
   imagensFixas.forEach(imagem => {
     const div = document.createElement('div');
@@ -142,12 +146,11 @@ async function carregarImagens(categoria = '') {
       <h3>${imagem.titulo}</h3>
     `;
     div.addEventListener('click', (e) => {
-      abrirModal(imagem.url, ''); // Sem descrição fixa
+      abrirModal(imagem.url, '');
     });
     galeria.appendChild(div);
   });
 
-  // Carrega imagens da API em paralelo
   const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
   url.searchParams.append('pagina', paginaAtual);
   url.searchParams.append('limite', limite);
@@ -155,10 +158,9 @@ async function carregarImagens(categoria = '') {
 
   try {
     const res = await fetch(url);
+    if (!res.ok) throw new Error('Falha ao carregar imagens');
     const dados = await res.json();
-
-    // Substitui a galeria com dados da API de uma vez
-    galeria.innerHTML = ''; // Limpa as fixas antes de renderizar
+    galeria.innerHTML = '';
     dados.imagens.forEach(imagem => {
       const div = document.createElement('div');
       div.classList.add('item-galeria');
@@ -171,7 +173,6 @@ async function carregarImagens(categoria = '') {
       });
       galeria.appendChild(div);
     });
-
     gerarPaginacao(dados.total);
   } catch (error) {
     console.error('Erro ao carregar imagens:', error);
@@ -180,28 +181,25 @@ async function carregarImagens(categoria = '') {
 
 formEnvio.addEventListener('submit', async (e) => {
   e.preventDefault();
-
   const formData = new FormData(formEnvio);
-
-  const res = await fetch('https://desenho-portifolio.onrender.com/api/imagens/upload', {
-    method: 'POST',
-    body: formData
-  });
-
-  if (res.ok) {
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/imagens/upload', {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error('Falha ao enviar imagem');
     alert('Imagem enviada com sucesso!');
     formEnvio.reset();
     formEnvioContainer.style.display = 'none';
     carregarImagens();
-  } else {
-    alert('Erro ao enviar imagem: ' + (await res.text()));
+  } catch (error) {
+    alert('Erro ao enviar imagem: ' + error.message);
   }
 });
 
 function gerarPaginacao(total) {
   const totalPaginas = Math.ceil(total / limite);
   paginacao.innerHTML = '';
-
   for (let i = 1; i <= totalPaginas; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
@@ -219,22 +217,16 @@ navButtons.forEach(button => {
     paginaAtual = 1;
     const categoria = button.getAttribute('data-categoria');
     carregarImagens(categoria);
-    if (window.innerWidth <= 768) {
-      nav.classList.remove('ativo');
-    }
+    if (window.innerWidth <= 768) nav.classList.remove('ativo');
   });
 });
 
-menuToggle.addEventListener('click', () => {
-  nav.classList.toggle('ativo');
-});
+menuToggle.addEventListener('click', () => nav.classList.toggle('ativo'));
 
 function abrirModal(src, descricao) {
   imagemModal.src = src;
-  // Remove qualquer descrição anterior
   const descricaoElement = modal.querySelector('p');
   if (descricaoElement) modal.removeChild(descricaoElement);
-  // Adiciona a descrição abaixo da imagem, se existir
   if (descricao) {
     const p = document.createElement('p');
     p.textContent = descricao || 'Sem descrição';
@@ -263,7 +255,6 @@ const formContainer = document.getElementById('form-envio-container');
 const botaoMostrarForm = document.createElement('button');
 botaoMostrarForm.textContent = 'Adicionar Arte';
 botaoMostrarForm.classList.add('botao-envio-discreto');
-
 formContainer.parentNode.insertBefore(botaoMostrarForm, formContainer);
 formEnvioContainer.style.display = 'none';
 
@@ -271,124 +262,155 @@ botaoMostrarForm.addEventListener('click', () => {
   formEnvioContainer.style.display = formEnvioContainer.style.display === 'none' ? 'block' : 'none';
 });
 
-// Configurações
 configBtn.addEventListener('click', () => {
-  configContent.innerHTML = `
-    <h3>Configurações</h3>
-    <button id="edit-titulo">Editar Título e Cor</button>
-    <button id="edit-foto">Trocar Foto do Artista</button>
-    <button id="edit-descricao">Editar Descrição</button>
-    <button id="edit-redes">Editar Redes Sociais</button>
-    <button id="edit-cores">Trocar Cores</button>
-    <button id="gerenciar-imagens">Gerenciar Imagens</button>
-    <button id="adicionar-arte">Adicionar Arte</button>
-  `;
-  configModal.classList.add('ativo');
-
-  document.getElementById('edit-titulo').addEventListener('click', () => {
+  if (!autenticado) {
+    const loginModal = document.createElement('div');
+    loginModal.id = 'login-modal';
+    loginModal.className = 'modal';
+    loginModal.innerHTML = `
+      <div class="login-content">
+        <h3>Insira a Senha</h3>
+        <input type="password" id="senha-input" placeholder="Senha" />
+        <button onclick="verificarSenha()">Entrar</button>
+        <span id="fechar-login-modal">×</span>
+      </div>
+    `;
+    document.body.appendChild(loginModal);
+    loginModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 40;
+    `;
+    document.getElementById('fechar-login-modal').addEventListener('click', () => {
+      document.body.removeChild(loginModal);
+    });
+  } else {
     configContent.innerHTML = `
-      <h3>Editar Título e Cor</h3>
-      <input type="text" id="novo-titulo" value="${tituloSite.textContent}" />
-      <input type="color" id="titulo-color" value="${currentColors.text}" />
-      <button onclick="salvarTitulo()">Salvar</button>
+      <h3>Configurações</h3>
+      <button id="edit-titulo">Editar Título e Cor</button>
+      <button id="edit-foto">Trocar Foto do Artista</button>
+      <button id="edit-descricao">Editar Descrição</button>
+      <button id="edit-redes">Editar Redes Sociais</button>
+      <button id="edit-cores">Trocar Cores</button>
+      <button id="gerenciar-imagens">Gerenciar Imagens</button>
+      <button id="adicionar-arte">Adicionar Arte</button>
     `;
     configModal.classList.add('ativo');
-  });
-
-  document.getElementById('edit-foto').addEventListener('click', () => {
-    configContent.innerHTML = `
-      <h3>Trocar Foto do Artista</h3>
-      <input type="file" id="nova-foto" />
-      <button onclick="salvarFoto()">Salvar</button>
-    `;
-    configModal.classList.add('ativo');
-  });
-
-  document.getElementById('edit-descricao').addEventListener('click', () => {
-    configContent.innerHTML = `
-      <h3>Editar Descrição</h3>
-      <textarea id="nova-descricao">${descricaoArtista.textContent}</textarea>
-      <button onclick="salvarDescricao()">Salvar</button>
-    `;
-    configModal.classList.add('ativo');
-  });
-
-  document.getElementById('edit-redes').addEventListener('click', () => {
-    configContent.innerHTML = `
-      <h3>Editar Redes Sociais</h3>
-      <input type="text" id="insta-link" placeholder="Link Instagram" value="${redesSociais.querySelector('a[aria-label="Instagram"]')?.href || ''}" />
-      <input type="text" id="youtube-link" placeholder="Link YouTube" value="${redesSociais.querySelector('a[aria-label="YouTube"]')?.href || ''}" />
-      <input type="text" id="whatsapp-link" placeholder="Link WhatsApp" value="${redesSociais.querySelector('a[aria-label="WhatsApp"]')?.href || ''}" />
-      <button onclick="salvarRedes()">Salvar</button>
-    `;
-    configModal.classList.add('ativo');
-  });
-
-  document.getElementById('edit-cores').addEventListener('click', () => {
-    configContent.innerHTML = `
-      <h3>Trocar Cores</h3>
-      <label>Cor de Fundo: <input type="color" id="bg-color" value="${currentColors.background}" /></label><br>
-      <label>Cor do Texto: <input type="color" id="text-color" value="${currentColors.text}" /></label><br>
-      <label>Cor de Destaque: <input type="color" id="accent-color" value="${currentColors.accent}" /></label><br>
-      <button onclick="salvarCores()">Salvar</button>
-    `;
-    configModal.classList.add('ativo');
-  });
-
-  document.getElementById('gerenciar-imagens').addEventListener('click', () => {
-    configContent.innerHTML = `<h3>Gerenciar Imagens</h3><div id="imagens-list"></div>`;
-    carregarImagensParaGerenciar();
-    configModal.classList.add('ativo');
-  });
-
-  document.getElementById('adicionar-arte').addEventListener('click', () => {
-    formEnvioContainer.style.display = 'block';
-    configModal.classList.remove('ativo');
-  });
+  }
 });
 
-fecharConfigModal.addEventListener('click', () => {
+document.getElementById('edit-titulo').addEventListener('click', () => {
+  configContent.innerHTML = `
+    <h3>Editar Título e Cor</h3>
+    <input type="text" id="novo-titulo" value="${tituloSite.textContent}" />
+    <input type="color" id="titulo-color" value="${currentColors.text}" />
+    <button onclick="salvarTitulo()">Salvar</button>
+  `;
+});
+
+document.getElementById('edit-foto').addEventListener('click', () => {
+  configContent.innerHTML = `
+    <h3>Trocar Foto do Artista</h3>
+    <input type="file" id="nova-foto" />
+    <button onclick="salvarFoto()">Salvar</button>
+  `;
+});
+
+document.getElementById('edit-descricao').addEventListener('click', () => {
+  configContent.innerHTML = `
+    <h3>Editar Descrição</h3>
+    <textarea id="nova-descricao">${descricaoArtista.textContent}</textarea>
+    <button onclick="salvarDescricao()">Salvar</button>
+  `;
+});
+
+document.getElementById('edit-redes').addEventListener('click', () => {
+  configContent.innerHTML = `
+    <h3>Editar Redes Sociais</h3>
+    <input type="text" id="insta-link" placeholder="Link Instagram" value="${redesSociais.querySelector('a[aria-label="Instagram"]')?.href || ''}" />
+    <input type="text" id="youtube-link" placeholder="Link YouTube" value="${redesSociais.querySelector('a[aria-label="YouTube"]')?.href || ''}" />
+    <input type="text" id="whatsapp-link" placeholder="Link WhatsApp" value="${redesSociais.querySelector('a[aria-label="WhatsApp"]')?.href || ''}" />
+    <button onclick="salvarRedes()">Salvar</button>
+  `;
+});
+
+document.getElementById('edit-cores').addEventListener('click', () => {
+  configContent.innerHTML = `
+    <h3>Trocar Cores</h3>
+    <label>Cor de Fundo: <input type="color" id="bg-color" value="${currentColors.background}" /></label><br>
+    <label>Cor do Texto: <input type="color" id="text-color" value="${currentColors.text}" /></label><br>
+    <label>Cor de Destaque: <input type="color" id="accent-color" value="${currentColors.accent}" /></label><br>
+    <button onclick="salvarCores()">Salvar</button>
+  `;
+});
+
+document.getElementById('gerenciar-imagens').addEventListener('click', () => {
+  configContent.innerHTML = `<h3>Gerenciar Imagens</h3><div id="imagens-list"></div>`;
+  carregarImagensParaGerenciar();
+});
+
+document.getElementById('adicionar-arte').addEventListener('click', () => {
+  formEnvioContainer.style.display = 'block';
   configModal.classList.remove('ativo');
 });
+
+fecharConfigModal.addEventListener('click', () => configModal.classList.remove('ativo'));
 configModal.addEventListener('click', (e) => {
   if (e.target === configModal) configModal.classList.remove('ativo');
 });
 
 async function salvarTitulo() {
+  if (!autenticado) {
+    alert('Por favor, autentique-se primeiro!');
+    return;
+  }
   const novoTitulo = document.getElementById('novo-titulo').value;
   const tituloColor = document.getElementById('titulo-color').value;
-  const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tituloSite: novoTitulo, cores: { ...currentColors, text: tituloColor } })
-  });
-  if (res.ok) {
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tituloSite: novoTitulo, cores: { ...currentColors, text: tituloColor } })
+    });
+    if (!res.ok) throw new Error('Falha ao salvar título');
     const config = await res.json();
     tituloSite.textContent = config.tituloSite;
     currentColors.text = config.cores.text;
     applyColors();
     alert('Título e cor salvos com sucesso!');
-  } else {
-    alert('Erro ao salvar título: ' + (await res.text()));
+  } catch (error) {
+    alert('Erro ao salvar título: ' + error.message);
   }
   configModal.classList.remove('ativo');
 }
 
 async function salvarFoto() {
+  if (!autenticado) {
+    alert('Por favor, autentique-se primeiro!');
+    return;
+  }
   const novaFoto = document.getElementById('nova-foto').files[0];
   if (novaFoto) {
     const formData = new FormData();
     formData.append('fotoPerfil', novaFoto);
-    const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
-      method: 'PUT',
-      body: formData
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
+        method: 'PUT',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Falha ao salvar foto');
       const config = await res.json();
       fotoPerfil.src = config.fotoPerfil;
       alert('Foto salva com sucesso!');
-    } else {
-      alert('Erro ao salvar foto: ' + (await res.text()));
+    } catch (error) {
+      alert('Erro ao salvar foto: ' + error.message);
     }
   } else {
     alert('Por favor, selecione uma foto.');
@@ -397,34 +419,44 @@ async function salvarFoto() {
 }
 
 async function salvarDescricao() {
+  if (!autenticado) {
+    alert('Por favor, autentique-se primeiro!');
+    return;
+  }
   const novaDescricao = document.getElementById('nova-descricao').value;
-  const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ descricaoArtista: novaDescricao })
-  });
-  if (res.ok) {
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ descricaoArtista: novaDescricao })
+    });
+    if (!res.ok) throw new Error('Falha ao salvar descrição');
     const config = await res.json();
     descricaoArtista.textContent = config.descricaoArtista;
     alert('Descrição salva com sucesso!');
-  } else {
-    alert('Erro ao salvar descrição: ' + (await res.text()));
+  } catch (error) {
+    alert('Erro ao salvar descrição: ' + error.message);
   }
   configModal.classList.remove('ativo');
 }
 
 async function salvarRedes() {
+  if (!autenticado) {
+    alert('Por favor, autentique-se primeiro!');
+    return;
+  }
   const instaLink = document.getElementById('insta-link').value;
   const youtubeLink = document.getElementById('youtube-link').value;
   const whatsappLink = document.getElementById('whatsapp-link').value;
-  const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      redesSociais: { instagram: instaLink, youtube: youtubeLink, whatsapp: whatsappLink }
-    })
-  });
-  if (res.ok) {
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        redesSociais: { instagram: instaLink, youtube: youtubeLink, whatsapp: whatsappLink }
+      })
+    });
+    if (!res.ok) throw new Error('Falha ao salvar redes sociais');
     const config = await res.json();
     redesSociais.innerHTML = `
       <a href="${config.redesSociais.instagram || '#'}" aria-label="Instagram"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram" /></a>
@@ -432,13 +464,17 @@ async function salvarRedes() {
       <a href="${config.redesSociais.whatsapp || '#'}" aria-label="WhatsApp"><img src="https://img.icons8.com/ios-filled/50/ffffff/whatsapp.png" alt="WhatsApp" /></a>
     `;
     alert('Redes sociais salvas com sucesso!');
-  } else {
-    alert('Erro ao salvar redes sociais: ' + (await res.text()));
+  } catch (error) {
+    alert('Erro ao salvar redes sociais: ' + error.message);
   }
   configModal.classList.remove('ativo');
 }
 
 function salvarCores() {
+  if (!autenticado) {
+    alert('Por favor, autentique-se primeiro!');
+    return;
+  }
   currentColors.background = document.getElementById('bg-color').value;
   currentColors.text = document.getElementById('text-color').value;
   currentColors.accent = document.getElementById('accent-color').value;
@@ -448,45 +484,51 @@ function salvarCores() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cores: currentColors })
   }).then(res => {
-    if (res.ok) alert('Cores salvas com sucesso!');
-    else alert('Erro ao salvar cores: ' + res.statusText);
-  }).catch(err => console.error('Erro:', err));
+    if (!res.ok) throw new Error('Falha ao salvar cores');
+    return res.json();
+  }).then(() => alert('Cores salvas com sucesso!'))
+    .catch(err => alert('Erro ao salvar cores: ' + err.message));
   configModal.classList.remove('ativo');
 }
 
 async function carregarImagensParaGerenciar() {
   const url = 'https://desenho-portifolio.onrender.com/api/imagens';
-  const res = await fetch(url);
-  const dados = await res.json();
-  const imagensList = document.getElementById('imagens-list');
-  imagensList.innerHTML = '';
-  dados.imagens.forEach(imagem => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <img src="${imagem.url}" alt="${imagem.titulo}" style="max-width: 100px;" />
-      <p>${imagem.titulo}</p>
-      <button onclick="deletarImagem('${imagem._id}')">Remover</button>
-    `;
-    imagensList.appendChild(div);
-  });
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Falha ao carregar imagens');
+    const dados = await res.json();
+    const imagensList = document.getElementById('imagens-list');
+    imagensList.innerHTML = '';
+    dados.imagens.forEach(imagem => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <img src="${imagem.url}" alt="${imagem.titulo}" style="max-width: 100px;" />
+        <p>${imagem.titulo}</p>
+        <button onclick="deletarImagem('${imagem._id}')">Remover</button>
+      `;
+      imagensList.appendChild(div);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar imagens para gerenciar:', error);
+  }
 }
 
 async function deletarImagem(id) {
   if (confirm('Tem certeza que deseja deletar esta imagem?')) {
-    const res = await fetch(`https://desenho-portifolio.onrender.com/api/imagens/${id}`, {
-      method: 'DELETE'
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch(`https://desenho-portifolio.onrender.com/api/imagens/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Falha ao deletar imagem');
       alert('Imagem deletada com sucesso!');
       carregarImagens();
       carregarImagensParaGerenciar();
-    } else {
-      alert('Erro ao deletar imagem: ' + (await res.text()));
+    } catch (error) {
+      alert('Erro ao deletar imagem: ' + error.message);
     }
   }
 }
 
-// Inicialização
 carregarConfiguracoes();
 carregarImagens();
 applyColors();
