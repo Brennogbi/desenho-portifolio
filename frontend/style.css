@@ -19,7 +19,7 @@ header {
   top: 0;
   left: 0;
   width: 100%;
-  background: #000;
+  background: #000000;
   color: #fff;
   padding: 1rem 2rem;
   text-align: center;
@@ -71,22 +71,27 @@ nav {
   justify-content: center;
   gap: 1rem;
   margin-top: 0.5rem;
+  
 }
 
 .nav-btn {
+ 
   background: #000;
   color: #fff;
   border: 2px solid #fff;
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s, color 0.3s, transform 0.3s;
+  font-size: 1.2rem;
+  transition:  font-size 0.3s, color 0.3s, transform 0.3s;
+  border: none;
 }
 
 .nav-btn:hover {
-  background: #333;
-  transform: scale(1.1);
+  
+  font-size: 1.4em; /* aumenta o tamanho */
+  transform: scale(1.1); /* dá um pequeno zoom */
+  text-shadow: 2px 2px 5px rgb(241, 240, 240); /* sombra nas letras */
 }
 
 /* Sobre */
