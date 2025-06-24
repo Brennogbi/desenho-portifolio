@@ -19,6 +19,7 @@ exports.updateConfig = async (req, res) => {
     const { tituloSite, descricaoArtista, redesSociais, cores } = req.body || {};
     let fotoPerfil = req.body.fotoPerfil || (await Config.findOne()).fotoPerfil;
 
+    // Processa o upload da foto, se houver
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'portfolio-artista/perfil',
@@ -27,6 +28,7 @@ exports.updateConfig = async (req, res) => {
       fotoPerfil = result.secure_url;
     }
 
+    // Prepara os dados para atualização com validação
     const updateData = { fotoPerfil };
     if (tituloSite) updateData.tituloSite = tituloSite;
     if (descricaoArtista) updateData.descricaoArtista = descricaoArtista;
@@ -53,21 +55,5 @@ exports.updateConfig = async (req, res) => {
     res.json(config);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar configurações', detalhes: error.message });
-  }
-};
-
-exports.auth = async (req, res) => {
-  try {
-    console.log('Requisição de autenticação recebida:', req.body); // Log para depuração
-    const { senha } = req.body;
-    const config = await Config.findOne();
-    if (config && config.senha === senha) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: 'Senha inválida' });
-    }
-  } catch (error) {
-    console.error('Erro no auth:', error.message);
-    res.status(500).json({ erro: 'Erro ao autenticar', detalhes: error.message });
   }
 };
