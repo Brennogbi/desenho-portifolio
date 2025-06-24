@@ -57,3 +57,17 @@ exports.updateConfig = async (req, res) => {
     res.status(500).json({ erro: 'Erro ao atualizar configurações', detalhes: error.message });
   }
 };
+
+exports.auth = async (req, res) => {
+  try {
+    const { senha } = req.body;
+    const config = await Config.findOne();
+    if (config && config.senha === senha) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, message: 'Senha inválida' });
+    }
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao autenticar', detalhes: error.message });
+  }
+};

@@ -28,6 +28,65 @@ modal.appendChild(fecharModal);
 let paginaAtual = 1;
 const limite = 3;
 let currentColors = { background: '#000', text: '#fff', accent: '#fff' };
+let autenticado = false;
+
+configBtn.addEventListener('click', () => {
+  if (!autenticado) {
+    const loginModal = document.createElement('div');
+    loginModal.id = 'login-modal';
+    loginModal.className = 'modal';
+    loginModal.innerHTML = `
+      <div class="login-content">
+        <h3>Insira a Senha</h3>
+        <input type="password" id="senha-input" placeholder="Senha" />
+        <button onclick="verificarSenha()">Entrar</button>
+        <span id="fechar-login-modal">×</span>
+      </div>
+    `;
+    document.body.appendChild(loginModal);
+
+    loginModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 40;
+    `;
+
+    document.getElementById('fechar-login-modal').addEventListener('click', () => {
+      document.body.removeChild(loginModal);
+    });
+  } else {
+    configModal.classList.add('ativo');
+  }
+});
+
+async function verificarSenha() {
+  const senha = document.getElementById('senha-input').value;
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ senha })
+    });
+    const data = await res.json();
+    if (data.success) {
+      autenticado = true;
+      document.body.removeChild(document.getElementById('login-modal'));
+      configModal.classList.add('ativo');
+    } else {
+      alert(data.message || 'Erro ao autenticar');
+    }
+  } catch (error) {
+    console.error('Erro na autenticação:', error);
+    alert('Erro ao conectar com o servidor');
+  }
+}
 
 // Imagens fixas para exibir inicialmente
 const imagensFixas = [
