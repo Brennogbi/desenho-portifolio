@@ -435,14 +435,17 @@ footer .redes img {
   .sobre {
     flex-direction: column;
     text-align: center;
+    padding: 2rem;
   }
 
   .foto-perfil {
     margin-bottom: 1rem;
-    flex-direction: column;
     margin-left: 20px;
     width: 200px;
     height: 200px;
+    display: block; /* Garante que a imagem seja tratada como bloco */
+    margin-left: auto; /* Centraliza horizontalmente */
+    margin-right: auto; /* Centraliza horizontalmente */
   }
 
   .galeria {
