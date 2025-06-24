@@ -16,10 +16,10 @@ exports.getConfig = async (req, res) => {
 
 exports.updateConfig = async (req, res) => {
   try {
+    console.log('Requisição recebida para updateConfig:', req.body); // Log para depuração
     const { tituloSite, descricaoArtista, redesSociais, cores } = req.body || {};
     let fotoPerfil = req.body.fotoPerfil || (await Config.findOne()).fotoPerfil;
 
-    // Processa o upload da foto, se houver
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'portfolio-artista/perfil',
@@ -28,7 +28,6 @@ exports.updateConfig = async (req, res) => {
       fotoPerfil = result.secure_url;
     }
 
-    // Prepara os dados para atualização com validação
     const updateData = { fotoPerfil };
     if (tituloSite) updateData.tituloSite = tituloSite;
     if (descricaoArtista) updateData.descricaoArtista = descricaoArtista;
@@ -42,6 +41,7 @@ exports.updateConfig = async (req, res) => {
     if (cores) {
       try {
         updateData.cores = typeof cores === 'string' ? JSON.parse(cores) : cores;
+        console.log('Cores a serem salvas:', updateData.cores); // Log para depuração
       } catch (e) {
         throw new Error('Dados de cores inválidos');
       }
@@ -54,6 +54,7 @@ exports.updateConfig = async (req, res) => {
     );
     res.json(config);
   } catch (error) {
+    console.error('Erro no updateConfig:', error.message);
     res.status(500).json({ erro: 'Erro ao atualizar configurações', detalhes: error.message });
   }
 };
