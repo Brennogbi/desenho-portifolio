@@ -461,36 +461,3 @@ footer .redes img {
 }
 
 /* Modal para Imagens */
-
-/* Estilo para o modal de login */
-.login-content {
-  background: #000;
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 5px;
-  padding: 1rem 2rem;
-  text-align: center;
-  width: 300px;
-}
-
-.login-content input {
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  border: 1px solid #555;
-  border-radius: 5px;
-  background: #333;
-  color: #fff;
-}
-
-.login-content button {
-  padding: 0.5rem 1rem;
-  background: #555;
-  border: none;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.login-content button:hover {
-  background: #777;
-}

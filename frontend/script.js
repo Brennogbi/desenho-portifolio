@@ -378,12 +378,19 @@ function salvarCores() {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cores: currentColors })
-  }).then(res => {
-    if (!res.ok) throw new Error('Falha ao salvar cores');
-    return res.json();
-  }).then(() => alert('Cores salvas com sucesso!'))
-    .catch(err => alert('Erro ao salvar cores: ' + err.message));
-  configModal.classList.remove('ativo');
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('Falha ao salvar cores: ' + res.statusText);
+      return res.json();
+    })
+    .then(() => {
+      alert('Cores salvas com sucesso!');
+      configModal.classList.remove('ativo');
+    })
+    .catch(err => {
+      alert('Erro ao salvar cores: ' + err.message);
+      console.error('Detalhes do erro:', err); // Log para depuração
+    });
 }
 
 async function carregarImagensParaGerenciar() {
