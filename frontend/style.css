@@ -29,6 +29,7 @@ header {
   align-items: center;
   flex-direction: column;
   transition: background 0.3s, color 0.3s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.562);
 
 }
 
@@ -69,7 +70,7 @@ header h1 {
 nav {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 2rem;
   margin-top: 0.5rem;
   
 }
@@ -137,7 +138,7 @@ nav {
 }
 
 .sobre-texto h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   margin-bottom: 1rem;
 }
 
@@ -407,6 +408,7 @@ footer {
 footer .redes img {
   width: 24px;
   height: 24px;
+ 
 }
 
 /* Responsivo e Menu Mobile */
