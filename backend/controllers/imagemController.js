@@ -1,71 +1,53 @@
 const Imagem = require('../models/Imagem');
+const cloudinary = require('cloudinary').v2;
 
-exports.salvarImagem = async (req, res) => {
+exports.getImagens = async (req, res) => {
   try {
-    const { titulo, descricao, categoria } = req.body;
-    const url = req.file.path;
+    const pagina = parseInt(req.query.pagina) || 1;
+    const limite = parseInt(req.query.limite) || 10;
+    const categoria = req.query.categoria || '';
+    const skip = (pagina - 1) * limite;
 
-    const novaImagem = await Imagem.create({
-      titulo,
-      descricao,
-      categoria,
-      url,
-    });
+    const query = {};
+    if (categoria) query.categoria = categoria;
 
-    res.status(201).json(novaImagem);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao salvar imagem' });
-  }
-};
-
-exports.listarImagens = async (req, res) => {
-  try {
-    const { categoria, busca, pagina = 1, limite = 6 } = req.query;
-
-    const filtro = {};
-    if (categoria) filtro.categoria = categoria;
-    if (busca) filtro.titulo = { $regex: busca, $options: 'i' };
-
-    const imagens = await Imagem.find(filtro)
-      .sort({ criadoEm: -1 })
-      .skip((pagina - 1) * limite)
-      .limit(parseInt(limite));
-
-    const total = await Imagem.countDocuments(filtro);
+    const imagens = await Imagem.find(query).skip(skip).limit(limite);
+    const total = await Imagem.countDocuments(query);
 
     res.json({ imagens, total });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao listar imagens' });
+    res.status(500).json({ erro: 'Erro ao carregar imagens', detalhes: error.message });
   }
 };
 
-exports.editarImagem = async (req, res) => {
+exports.uploadImagem = async (req, res) => {
   try {
-    const { id } = req.params;
     const { titulo, descricao, categoria } = req.body;
-    const url = req.file ? req.file.path : req.body.url; // Mantém URL existente se não houver novo arquivo
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'portfolio-artista/imagens',
+      allowed_formats: ['jpg', 'jpeg', 'png'],
+    }).catch(err => { throw new Error(`Falha no upload para Cloudinary: ${err.message}`); });
 
-    const imagemAtualizada = await Imagem.findByIdAndUpdate(
-      id,
-      { titulo, descricao, categoria, url },
-      { new: true }
-    );
-    if (!imagemAtualizada) return res.status(404).json({ erro: 'Imagem não encontrada' });
-    res.json(imagemAtualizada);
+    const imagem = new Imagem({
+      titulo,
+      descricao,
+      url: result.secure_url,
+      categoria,
+    });
+    await imagem.save();
+
+    res.json(imagem);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao editar imagem' });
+    res.status(500).json({ erro: 'Erro ao enviar imagem', detalhes: error.message });
   }
 };
 
-exports.deletarImagem = async (req, res) => {
+exports.deleteImagem = async (req, res) => {
   try {
-    const { id } = req.params;
-    const imagem = await Imagem.findByIdAndDelete(id);
-    if (!imagem) return res.status(404).json({ erro: 'Imagem não encontrada' });
-    res.status(200).json({ mensagem: 'Imagem deletada com sucesso' });
+    const imagem = await Imagem.findByIdAndDelete(req.params.id);
+    if (!imagem) throw new Error('Imagem não encontrada');
+    res.json({ mensagem: 'Imagem deletada com sucesso' });
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao deletar imagem' });
+    res.status(500).json({ erro: 'Erro ao deletar imagem', detalhes: error.message });
   }
 };

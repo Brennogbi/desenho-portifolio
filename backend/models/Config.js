@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 
 const configSchema = new mongoose.Schema({
   tituloSite: { type: String, default: 'Bem vindo ao meu PORTFÓLIO!' },
-  fotoPerfil: { type: String, default: 'img/logo.jpg' },
   descricaoArtista: { type: String, default: 'Sou Breno, artista visual apaixonado por retratos, paisagens e arte digital.' },
   redesSociais: {
-    instagram: { type: String, default: '' },
-    youtube: { type: String, default: '' },
-    whatsapp: { type: String, default: '' }
+    instagram: String,
+    youtube: String,
+    whatsapp: String
   },
+  fotoPerfil: { type: String, default: 'img/logo.jpg' },
   cores: {
     background: { type: String, default: '#000' },
     text: { type: String, default: '#fff' },

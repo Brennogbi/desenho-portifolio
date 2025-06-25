@@ -3,9 +3,8 @@ const router = express.Router();
 const imagemController = require('../controllers/imagemController');
 const upload = require('../middleware/upload');
 
-router.post('/upload', upload.single('imagem'), imagemController.salvarImagem);
-router.get('/', imagemController.listarImagens);
-router.put('/:id', upload.single('imagem'), imagemController.editarImagem);
-router.delete('/:id', imagemController.deletarImagem);
+router.get('/', imagemController.getImagens);
+router.post('/upload', upload.single('imagem'), imagemController.uploadImagem);
+router.delete('/:id', imagemController.deleteImagem);
 
 module.exports = router;

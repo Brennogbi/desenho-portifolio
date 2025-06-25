@@ -28,6 +28,7 @@ modal.appendChild(fecharModal);
 let paginaAtual = 1;
 const limite = 3;
 let currentColors = { background: '#000', text: '#fff', accent: '#fff' };
+let authToken = localStorage.getItem('token') || null;
 
 // Imagens fixas para exibir inicialmente
 const imagensFixas = [
@@ -38,7 +39,14 @@ const imagensFixas = [
 
 async function carregarConfiguracoes() {
   try {
-    const res = await fetch('https://desenho-portifolio.onrender.com/api/config');
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    if (!res.ok && res.status === 401) {
+      authToken = null;
+      localStorage.removeItem('token');
+      throw new Error('Acesso não autorizado. Faça login novamente.');
+    }
     if (!res.ok) throw new Error('Falha ao carregar configurações');
     const config = await res.json();
     tituloSite.textContent = config.tituloSite;
@@ -53,6 +61,7 @@ async function carregarConfiguracoes() {
     applyColors();
   } catch (error) {
     console.error('Erro ao carregar configurações:', error);
+    alert(error.message);
   }
 }
 
@@ -200,6 +209,58 @@ botaoMostrarForm.addEventListener('click', () => {
 });
 
 configBtn.addEventListener('click', () => {
+  if (!authToken) {
+    showLoginModal();
+  } else {
+    openConfigModal();
+  }
+});
+
+function showLoginModal() {
+  const loginModal = document.createElement('div');
+  loginModal.id = 'login-modal';
+  loginModal.className = 'modal';
+  loginModal.innerHTML = `
+    <div class="login-content">
+      <h3>Login</h3>
+      <input type="email" id="login-email" placeholder="E-mail" required>
+      <input type="password" id="login-password" placeholder="Senha" required>
+      <button onclick="handleLogin()">Entrar</button>
+      <span id="close-login-modal">×</span>
+    </div>
+  `;
+  document.body.appendChild(loginModal);
+
+  document.getElementById('close-login-modal').addEventListener('click', () => {
+    loginModal.remove();
+  });
+
+  loginModal.addEventListener('click', (e) => {
+    if (e.target === loginModal) loginModal.remove();
+  });
+}
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  try {
+    const res = await fetch('https://desenho-portifolio.onrender.com/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) throw new Error('Falha no login');
+    const { token } = await res.json();
+    authToken = token;
+    localStorage.setItem('token', token);
+    document.getElementById('login-modal').remove();
+    openConfigModal();
+  } catch (error) {
+    alert('Erro ao fazer login: ' + error.message);
+  }
+}
+
+function openConfigModal() {
   configContent.innerHTML = `
     <h3>Configurações</h3>
     <button id="edit-titulo">Editar Título e Cor</button>
@@ -272,7 +333,7 @@ configBtn.addEventListener('click', () => {
     formEnvioContainer.style.display = 'block';
     configModal.classList.remove('ativo');
   });
-});
+}
 
 fecharConfigModal.addEventListener('click', () => {
   configModal.classList.remove('ativo');
@@ -287,7 +348,7 @@ async function salvarTitulo() {
   try {
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ tituloSite: novoTitulo, cores: { ...currentColors, text: tituloColor } })
     });
     if (!res.ok) throw new Error('Falha ao salvar título');
@@ -310,6 +371,7 @@ async function salvarFoto() {
     try {
       const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
         method: 'PUT',
+        headers: { 'Authorization': `Bearer ${authToken}` },
         body: formData
       });
       if (!res.ok) throw new Error('Falha ao salvar foto');
@@ -330,7 +392,7 @@ async function salvarDescricao() {
   try {
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ descricaoArtista: novaDescricao })
     });
     if (!res.ok) throw new Error('Falha ao salvar descrição');
@@ -350,7 +412,7 @@ async function salvarRedes() {
   try {
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({
         redesSociais: { instagram: instaLink, youtube: youtubeLink, whatsapp: whatsappLink }
       })
@@ -376,7 +438,7 @@ function salvarCores() {
   applyColors();
   fetch('https://desenho-portifolio.onrender.com/api/config', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
     body: JSON.stringify({ cores: currentColors })
   })
     .then(res => {
@@ -389,7 +451,7 @@ function salvarCores() {
     })
     .catch(err => {
       alert('Erro ao salvar cores: ' + err.message);
-      console.error('Detalhes do erro:', err); // Log para depuração
+      console.error('Detalhes do erro:', err);
     });
 }
 
