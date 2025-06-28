@@ -25,19 +25,35 @@ fecharModal.id = 'fechar-modal';
 fecharModal.textContent = '×';
 modal.appendChild(fecharModal);
 
+// Novo elemento para animação de carregamento
+const loadingOverlay = document.createElement('div');
+loadingOverlay.id = 'loading-overlay';
+loadingOverlay.innerHTML = '<div class="spinner"></div>';
+document.body.appendChild(loadingOverlay);
+
 let paginaAtual = 1;
-const limite = 3;
+const limite = 6; // Aumenta o limite para carregar mais itens por vez
 let currentColors = { background: '#000', text: '#fff', accent: '#fff' };
 let authToken = localStorage.getItem('token') || null;
+let cachedImagens = {}; // Cache para imagens
 
-// Imagens fixas para exibir inicialmente
+// Imagens fixas para exibir inicialmente (opcional, pode ser removido se backend fornecer tudo)
 const imagensFixas = [
   { url: 'https://via.placeholder.com/300x200?text=Imagem+1', titulo: 'Imagem 1' },
   { url: 'https://via.placeholder.com/300x200?text=Imagem+2', titulo: 'Imagem 2' },
   { url: 'https://via.placeholder.com/300x200?text=Imagem+3', titulo: 'Imagem 3' }
 ];
 
+function showLoading() {
+  loadingOverlay.style.display = 'flex';
+}
+
+function hideLoading() {
+  loadingOverlay.style.display = 'none';
+}
+
 async function carregarConfiguracoes() {
+  showLoading();
   try {
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       headers: { 'Authorization': `Bearer ${authToken}` }
@@ -62,6 +78,8 @@ async function carregarConfiguracoes() {
   } catch (error) {
     console.error('Erro ao carregar configurações:', error);
     alert(error.message);
+  } finally {
+    hideLoading();
   }
 }
 
@@ -83,19 +101,30 @@ function applyColors() {
 }
 
 async function carregarImagens(categoria = '') {
+  showLoading();
+  const cacheKey = `${categoria}-${paginaAtual}`;
+  if (cachedImagens[cacheKey]) {
+    renderImagens(cachedImagens[cacheKey]);
+    hideLoading();
+    return;
+  }
+
   galeria.innerHTML = '';
-  imagensFixas.forEach(imagem => {
-    const div = document.createElement('div');
-    div.classList.add('item-galeria');
-    div.innerHTML = `
-      <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
-      <h3>${imagem.titulo}</h3>
-    `;
-    div.addEventListener('click', (e) => {
-      abrirModal(imagem.url, '');
+  // Adicionar imagens fixas apenas na primeira página, se desejar
+  if (paginaAtual === 1) {
+    imagensFixas.forEach(imagem => {
+      const div = document.createElement('div');
+      div.classList.add('item-galeria');
+      div.innerHTML = `
+        <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
+        <h3>${imagem.titulo}</h3>
+      `;
+      div.addEventListener('click', (e) => {
+        abrirModal(imagem.url, '');
+      });
+      galeria.appendChild(div);
     });
-    galeria.appendChild(div);
-  });
+  }
 
   const url = new URL('https://desenho-portifolio.onrender.com/api/imagens');
   url.searchParams.append('pagina', paginaAtual);
@@ -106,29 +135,39 @@ async function carregarImagens(categoria = '') {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Falha ao carregar imagens');
     const dados = await res.json();
-    galeria.innerHTML = '';
-    dados.imagens.forEach(imagem => {
-      const div = document.createElement('div');
-      div.classList.add('item-galeria');
-      div.innerHTML = `
-        <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
-        <h3>${imagem.titulo}</h3>
-      `;
-      div.addEventListener('click', (e) => {
-        abrirModal(imagem.url, imagem.descricao);
-      });
-      galeria.appendChild(div);
-    });
+    const imagens = dados.imagens;
+    cachedImagens[cacheKey] = imagens; // Armazena no cache
+    renderImagens(imagens);
     gerarPaginacao(dados.total);
   } catch (error) {
     console.error('Erro ao carregar imagens:', error);
+    galeria.innerHTML = '<p>Erro ao carregar imagens. Tente novamente.</p>';
+  } finally {
+    hideLoading();
   }
+}
+
+function renderImagens(imagens) {
+  galeria.innerHTML = ''; // Limpa apenas se necessário
+  imagens.forEach(imagem => {
+    const div = document.createElement('div');
+    div.classList.add('item-galeria');
+    div.innerHTML = `
+      <img src="${imagem.url}" alt="${imagem.titulo}" loading="lazy" />
+      <h3>${imagem.titulo}</h3>
+    `;
+    div.addEventListener('click', (e) => {
+      abrirModal(imagem.url, imagem.descricao);
+    });
+    galeria.appendChild(div);
+  });
 }
 
 formEnvio.addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(formEnvio);
   try {
+    showLoading();
     const res = await fetch('https://desenho-portifolio.onrender.com/api/imagens/upload', {
       method: 'POST',
       body: formData
@@ -137,9 +176,12 @@ formEnvio.addEventListener('submit', async (e) => {
     alert('Imagem enviada com sucesso!');
     formEnvio.reset();
     formEnvioContainer.style.display = 'none';
+    paginaAtual = 1; // Volta para a primeira página após upload
     carregarImagens();
   } catch (error) {
     alert('Erro ao enviar imagem: ' + error.message);
+  } finally {
+    hideLoading();
   }
 });
 
@@ -244,6 +286,7 @@ async function handleLogin() {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
   try {
+    showLoading();
     const res = await fetch('https://desenho-portifolio.onrender.com/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -257,6 +300,8 @@ async function handleLogin() {
     openConfigModal();
   } catch (error) {
     alert('Erro ao fazer login: ' + error.message);
+  } finally {
+    hideLoading();
   }
 }
 
@@ -346,6 +391,7 @@ async function salvarTitulo() {
   const novoTitulo = document.getElementById('novo-titulo').value;
   const tituloColor = document.getElementById('titulo-color').value;
   try {
+    showLoading();
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
@@ -359,6 +405,8 @@ async function salvarTitulo() {
     alert('Título e cor salvos com sucesso!');
   } catch (error) {
     alert('Erro ao salvar título: ' + error.message);
+  } finally {
+    hideLoading();
   }
   configModal.classList.remove('ativo');
 }
@@ -369,6 +417,7 @@ async function salvarFoto() {
     const formData = new FormData();
     formData.append('fotoPerfil', novaFoto);
     try {
+      showLoading();
       const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${authToken}` },
@@ -380,6 +429,8 @@ async function salvarFoto() {
       alert('Foto salva com sucesso!');
     } catch (error) {
       alert('Erro ao salvar foto: ' + error.message);
+    } finally {
+      hideLoading();
     }
   } else {
     alert('Por favor, selecione uma foto.');
@@ -390,6 +441,7 @@ async function salvarFoto() {
 async function salvarDescricao() {
   const novaDescricao = document.getElementById('nova-descricao').value;
   try {
+    showLoading();
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
@@ -401,6 +453,8 @@ async function salvarDescricao() {
     alert('Descrição salva com sucesso!');
   } catch (error) {
     alert('Erro ao salvar descrição: ' + error.message);
+  } finally {
+    hideLoading();
   }
   configModal.classList.remove('ativo');
 }
@@ -410,6 +464,7 @@ async function salvarRedes() {
   const youtubeLink = document.getElementById('youtube-link').value;
   const whatsappLink = document.getElementById('whatsapp-link').value;
   try {
+    showLoading();
     const res = await fetch('https://desenho-portifolio.onrender.com/api/config', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
@@ -427,6 +482,8 @@ async function salvarRedes() {
     alert('Redes sociais salvas com sucesso!');
   } catch (error) {
     alert('Erro ao salvar redes sociais: ' + error.message);
+  } finally {
+    hideLoading();
   }
   configModal.classList.remove('ativo');
 }
@@ -436,6 +493,7 @@ function salvarCores() {
   currentColors.text = document.getElementById('text-color').value;
   currentColors.accent = document.getElementById('accent-color').value;
   applyColors();
+  showLoading();
   fetch('https://desenho-portifolio.onrender.com/api/config', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
@@ -452,10 +510,12 @@ function salvarCores() {
     .catch(err => {
       alert('Erro ao salvar cores: ' + err.message);
       console.error('Detalhes do erro:', err);
-    });
+    })
+    .finally(() => hideLoading());
 }
 
 async function carregarImagensParaGerenciar() {
+  showLoading();
   const url = 'https://desenho-portifolio.onrender.com/api/imagens';
   try {
     const res = await fetch(url);
@@ -474,12 +534,15 @@ async function carregarImagensParaGerenciar() {
     });
   } catch (error) {
     console.error('Erro ao carregar imagens para gerenciar:', error);
+  } finally {
+    hideLoading();
   }
 }
 
 async function deletarImagem(id) {
   if (confirm('Tem certeza que deseja deletar esta imagem?')) {
     try {
+      showLoading();
       const res = await fetch(`https://desenho-portifolio.onrender.com/api/imagens/${id}`, {
         method: 'DELETE'
       });
@@ -489,6 +552,8 @@ async function deletarImagem(id) {
       carregarImagensParaGerenciar();
     } catch (error) {
       alert('Erro ao deletar imagem: ' + error.message);
+    } finally {
+      hideLoading();
     }
   }
 }

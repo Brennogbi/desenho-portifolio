@@ -160,7 +160,7 @@ nav {
 .galeria {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Colunas com mesmo tamanho automático */
-  gap: 3rem; /* Um pequeno espaço entre os itens, sem ficar colado demais */
+  gap: 2rem; /* Reduzido para carregar mais rápido */
   padding: 0.5rem;
   justify-items: center;
 }
@@ -169,7 +169,7 @@ nav {
   background: #070707;
   border: 1px solid #ddd;
   border-radius: 40px;
-  padding: 0.3rem; /* Reduzi um pouco o padding interno */
+  padding: 0.3rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.2s;
   cursor: pointer;
@@ -178,7 +178,7 @@ nav {
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 80%; /* Agora ocupa quase 100% da célula */
+  width: 80%;
 }
 
 .item-galeria:hover {
@@ -190,7 +190,7 @@ nav {
 }
 
 .item-galeria img {
-  max-width: 70%; /* Imagem maior */
+  max-width: 70%;
   max-height: 70%;
   display: block;
   margin-left: auto;
@@ -295,24 +295,24 @@ nav {
 
 #modal.ativo {
   display: flex;
-  flex-direction: column; /* Empilha verticalmente */
-  gap: 1rem; /* Espaçamento entre imagem e descrição */
+  flex-direction: column;
+  gap: 1rem;
 }
 
 #imagemModal {
   max-width: 90%;
-  max-height: 70vh; /* Limita a altura da imagem */
+  max-height: 70vh;
   border-radius: 8px;
 }
 
 #modal p {
-  max-width: 90%; /* Largura máxima para a descrição */
+  max-width: 90%;
   text-align: center;
   color: #fff;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.1); /* Fundo leve para contraste */
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  margin: 0 auto; /* Centraliza a descrição */
+  margin: 0 auto;
 }
 
 #fechar-modal {
@@ -342,15 +342,15 @@ nav {
 }
 
 #config-content {
-  background: #000; /* Mesmo fundo do nav */
-  color: #fff; /* Mesmo texto do nav */
-  border: 2px solid #fff; /* Mesma borda do nav */
-  border-radius: 5px; /* Mesma borda arredondada do nav */
-  padding: 1rem 2rem; /* Ajuste para alinhar com o padding do nav */
+  background: #000;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 5px;
+  padding: 1rem 2rem;
   text-align: center;
-  width: 300px; /* Largura fixa para simular o menu */
+  width: 300px;
   max-height: 80vh;
-  overflow-y: auto; /* Rolagem se necessário */
+  overflow-y: auto;
 }
 
 #config-content h3 {
@@ -359,20 +359,20 @@ nav {
 }
 
 #config-content button {
-  background: #000; /* Mesmo fundo dos botões do nav */
-  color: #fff; /* Mesmo texto dos botões do nav */
-  border: 2px solid #fff; /* Mesma borda dos botões do nav */
-  padding: 0.5rem 1rem; /* Mesmo padding dos botões do nav */
-  border-radius: 5px; /* Mesma borda arredondada dos botões do nav */
+  background: #000;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem; /* Mesmo tamanho de fonte dos botões do nav */
-  width: 100%; /* Botões ocupam toda a largura */
-  margin: 0.5rem 0; /* Espaçamento entre botões */
-  transition: background 0.3s, color 0.3s; /* Mesma transição dos botões do nav */
+  font-size: 1rem;
+  width: 100%;
+  margin: 0.5rem 0;
+  transition: background 0.3s, color 0.3s;
 }
 
 #config-content button:hover {
-  background: #333; /* Mesma transição de hover do nav */
+  background: #333;
 }
 
 #fechar-config-modal {
@@ -445,6 +445,34 @@ nav {
   cursor: pointer;
 }
 
+/* Loading Overlay */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Footer */
 footer {
   background: #000;
@@ -502,13 +530,13 @@ footer .redes img {
     margin-left: 20px;
     width: 200px;
     height: 200px;
-    display: block; /* Garante que a imagem seja tratada como bloco */
-    margin-left: auto; /* Centraliza horizontalmente */
-    margin-right: auto; /* Centraliza horizontalmente */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .galeria {
-    grid-template-columns: repeat(1, 1fr); /* Colunas com mesmo tamanho automático */
+    grid-template-columns: repeat(1, 1fr);
     gap: 1rem;
   }
 
